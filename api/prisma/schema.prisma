@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Estoque {
+  id        Int      @id @default(autoincrement())
+  Endereco String
+  Nome String
+  Telefone     String   @db.VarChar(20)
+  Descricao   String
+  ativo   Ativo[]
+}
+
+model Proprietario {
+  id        Int      @id @default(autoincrement())
+  Contato String
+  Nome String
+  Descricao   String
+  ativo   Ativo[]
+  prestador Prestador[]
+}
+
+model Manutencao {
+  id        Int      @id @default(autoincrement())
+  DataEnvio String
+  Valor Float
+  DataSolucao String
+  Descricao   String
+  prestador    Prestador     @relation(fields: [prestadorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  prestadorId  Int
+  ativo    Ativo     @relation(fields: [ativoId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  ativoId  Int
+}
+
+model Ativo {
+  id        Int      @id @default(autoincrement())
+  Marca String
+  Modelo String
+  Descricao String
+  estoque    Estoque @relation(fields: [estoqueId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  estoqueId  Int
+  propietario    Proprietario @relation(fields: [proprietarioId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  proprietarioId  Int
+  classe    Classe     @relation(fields: [classeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  classeId  Int
+  manutencao   Manutencao[]
+}
+
+model Prestador {
+  id        Int      @id @default(autoincrement())
+  Endereco String
+  Nome String
+  Telefone     String   @db.VarChar(20)
+  Descricao   String
+  manutencao   Manutencao[]
+  propietario    Proprietario @relation(fields: [proprietarioId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  proprietarioId  Int
+}
+
+model Classe {
+  id  Int  @id @default(autoincrement())
+  Nome String
+  Descricao   String
+  ativo   Ativo[]
+}
